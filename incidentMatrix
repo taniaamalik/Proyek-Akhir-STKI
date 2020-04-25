@@ -1,0 +1,31 @@
+document = [["buah", "suka", "buah", "dan", "buah", "pisang"], ["rasa", "suka", "terhadap", "buah", "naga"]]
+
+def cariTerm(document):
+    termsTraining = []
+    for doc in range(0, len(document)):
+        for word in document[doc]:
+            if word not in termsTraining:
+                termsTraining.append(word)
+    return termsTraining
+
+def kemunculanKata(term, document):
+    count = []
+    inMatrix = {}
+    for kata in term :
+        temp = []
+        inMatrix.get(kata,0)
+        for doc in range(0, len(document)):            
+            if kata in document[doc]:
+                temp.append(1)
+            else:
+                temp.append(0)
+        inMatrix[kata] = temp
+        count.append(temp)
+    return count, inMatrix
+
+terms = cariTerm(document)
+value,inMatrix = kemunculanKata(terms, document) 
+
+print(str(terms))
+print(str(inMatrix))
+print(str(value[0][0]))
