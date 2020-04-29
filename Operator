@@ -1,0 +1,116 @@
+def cariTerm(document):
+    termsTraining = []
+    for doc in range(0, len(document)):
+        for word in document[doc]:
+            if word not in termsTraining:
+                termsTraining.append(word)
+    return termsTraining
+
+def kemunculanKata(term, document):
+    count = []
+    inMatrix = {}
+    for kata in term :
+        temp = []
+        inMatrix.get(kata,0)
+        for doc in range(0, len(document)):            
+            if kata in document[doc]:
+                temp.append(1)
+            else:
+                temp.append(0)
+        inMatrix[kata] = temp
+        count.append(temp)
+    return count, inMatrix
+
+def prosesQuery(doc, Matrix, Listquery):
+    hasil = []
+    indexOperator = 0
+    # bukan = []
+
+    for q in range (0, len(Listquery)):
+        
+
+        if q == len(listQuery):
+            break
+
+        if Listquery[q] == "bukan":
+            indexBukan = Listquery.index("bukan")
+            Listquery.remove("bukan")
+            # indexOperator += 1
+            valueBukan = Matrix.get(Listquery[indexBukan])
+            updateMat = {Listquery[indexBukan]:booleanBukan(doc, valueBukan)}
+            hasil = boolean("bukan", doc, valueBukan, hasil)
+            Matrix.update(updateMat)
+            print(Matrix)
+            # Matrix.get(). )
+        # booleanBukan(q, query)
+        
+        if Listquery[q] == "dan":
+            Listquery.remove("dan")
+            indexOperator += 1
+            
+            value,valueNext = pilihQuery(indexOperator, Matrix, Listquery, q, hasil)
+            print(value)
+            hasil = boolean("dan", doc, value, valueNext)
+            
+        if Listquery[q] == "atau":
+            Listquery.remove("atau")
+            indexOperator += 1
+            value,valueNext = pilihQuery(indexOperator, Matrix, Listquery, q, hasil)
+            hasil = boolean("atau", doc, value, valueNext)       
+        
+    return Listquery, hasil
+
+def pilihQuery(indexOperator, Matrix, Listquery, indexq, hasil):
+    if(Listquery[indexq] == "bukan"):
+        queryA = Listquery[indexq]
+        queryB = Listquery[indexq-2]
+        print(queryA, queryB)
+    queryA = Listquery[indexq]
+    queryB = Listquery[indexq-1]
+    print(queryA, queryB)
+    valueNext = Matrix.get(queryA)
+    if indexOperator == 1 :
+        value = Matrix.get(queryB)
+    else:
+        value = hasil
+    return value,valueNext
+
+def boolean(operator, document, queryA, queryB):
+    hasil = []
+    for doc in range (len(document)):
+        if(operator == "dan"):
+            query = queryA[doc] & queryB[doc]
+        if(operator == "atau"):
+            query = queryA[doc] | queryB[doc]
+        if(operator == "bukan"):
+            query = queryA[doc] & queryB[doc]
+        #     print()
+        # #     query = queryA[doc] & queryB[doc]
+        if query:
+            hasil.append(1)
+        else:
+            hasil.append(0)
+    return hasil
+
+def booleanBukan(document, query):
+    # value = 
+    for doc in range (len(document)):
+        query[doc] = int(not query[doc])
+    return query
+
+document = [["buah", "suka", "buah", "buah", "pisang"], ["rasa", "suka", "terhadap", "buah", "naga"], ["suka", "buah", "naga"]]
+
+terms = cariTerm(document)
+value,inMatrix = kemunculanKata(terms, document) 
+
+# print(str(terms))
+# print(str(inMatrix))
+# print(str(value[0][0]))
+# print(str(value[0]))
+
+query = "buah dan naga bukan rasa"
+listQuery = query.split(" ")
+print("hasil")
+hasilQuery, hasilDok = prosesQuery(document, inMatrix, listQuery)
+print (hasilQuery)
+print(hasilDok)
