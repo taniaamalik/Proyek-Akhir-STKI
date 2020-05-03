@@ -1,0 +1,118 @@
+from pythonds.basic import Stack
+
+def cariTerm(document):
+    termsTraining = []
+
+    for doc in range(0, len(document)):
+        for word in document[doc]:
+            if word not in termsTraining:
+                termsTraining.append(word)
+
+    return termsTraining
+
+def kemunculanKata(term, document):
+    count = []
+    inMatrix = {}
+
+    for kata in term :
+        temp = []
+        inMatrix.get(kata,0)
+        for doc in range(0, len(document)):            
+            if kata in document[doc]:
+                temp.append(1)
+            else:
+                temp.append(0)
+        inMatrix[kata] = temp
+        count.append(temp)
+
+    return count, inMatrix
+
+def infixToPostfix(infixQuery,term):
+    queryList = infixQuery.split() 
+    queryStack = Stack()
+    postfixQuery = []
+    precOperator = {}
+    precOperator["not"] = 4
+    precOperator["and"] = 3
+    precOperator["or"] = 2
+    precOperator["("] = 1
+
+    for query in queryList:
+        if query in term:
+            postfixQuery.append(query)
+            indexNext = queryList.index(query)+1
+            if indexNext != len(queryList) and (queryList[indexNext] in term):
+                queryStack.push("and")
+        elif query == '(':
+            queryStack.push(query)
+        elif query == ')':
+            stackTeratas = queryStack.pop()
+            while stackTeratas != '(':
+                postfixQuery.append(stackTeratas)
+                stackTeratas = queryStack.pop()
+        else:
+            while (queryStack.isEmpty() != True) and (precOperator[queryStack.peek()] >= precOperator[query]):
+                  postfixQuery.append(queryStack.pop())
+            queryStack.push(query)
+
+    while (queryStack.isEmpty() != True):
+        postfixQuery.append(queryStack.pop())
+
+    return postfixQuery
+
+def hasilPostfix(queryList,doc, term, matrix):
+    queryStack = Stack()
+    hasil = []    
+    for query in queryList:
+        if(len(queryList) == 1) :
+            hasil = matrix.get(query)
+            break
+        if query in term:
+            queryStack.push(matrix.get(query))
+        elif query == "not":
+            queryNot = queryStack.pop()
+            queryNotUpdateValue = booleanNot(doc, queryNot)
+            queryStack.push(queryNotUpdateValue)
+        else:
+            query2 = queryStack.pop()
+            query1 = queryStack.pop()
+            hasil = boolean(query, doc, query1, query2)
+            queryStack.push(hasil)
+
+    return hasil
+
+def booleanNot(document, query):
+    # query =
+    for doc in range (len(document)):
+        query[doc] = int(not query[doc])
+    return query
+
+def boolean(operator, document, queryA, queryB):
+    hasil = []
+    
+    for doc in range (len(document)):
+        if(operator == "and"):
+            query = queryA[doc] & queryB[doc]
+        if(operator == "or"):
+            query = queryA[doc] | queryB[doc]
+        if query:
+            hasil.append(1)
+        else:
+            hasil.append(0)
+
+    return hasil
+
+document = [["buah", "suka", "buah", "pisang", "naga","manis"], ["rasa", "suka", "terhadap", "buah", "semangka"], ["buah","pisang", "naga", "apel", "suka"]]
+
+terms = cariTerm(document)
+value,inMatrix = kemunculanKata(terms, document) 
+
+query = "( ( buah naga manis or buah semangka ) and pisang ) and not apel"
+# query = "naga"
+
+postfixList = infixToPostfix(query, terms)
+hasil = hasilPostfix(postfixList, document, terms, inMatrix)
+
+print(query)
+print(postfixList)
+print(hasil)
